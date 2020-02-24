@@ -285,13 +285,13 @@ def clickBlog(browser):
 	time.sleep(2)
 	# 스크롤 작업
 	keyboard = KeyBoardControl()
-	for i in range(0,4):
+	for i in range(0,24):
 		win32api.keybd_event(keyboard.VK_CODE['spacebar'], 0,0,0)
 		time.sleep(0.3)
 		win32api.keybd_event(keyboard.VK_CODE['spacebar'], 0,win32con.KEYEVENTF_KEYUP,0)
 		time.sleep(2)
 
-	time.sleep(60)
+	time.sleep(10)
 	time.sleep(1)	
 
 	##################
