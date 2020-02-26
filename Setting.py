@@ -20,11 +20,15 @@ import urllib.parse
 def setting():
 	###### 브라우저 세팅 준비
 
-	# 현재 파일 경로로 바꾸기
+	# 현재 파일 경로로 바꾸기`
 	os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 	# UA 선택
-	UAFile = open('./spoofer.txt', 'rt').readlines()
+	spoofers = ['./spoofer_pc.txt','./spoofer_recent.txt','./spoofer_old.txt']
+	sf_randomInt = random.randrange(30,270) % 3
+	# if randomInt%3 == 0:
+	sf = spoofers[sf_randomInt]
+	UAFile = open(sf, 'rt').readlines()
 	randomInt2 = random.randrange(0,len(UAFile))
 	UA = UAFile[randomInt2]
 
@@ -33,10 +37,12 @@ def setting():
 	options.add_experimental_option("excludeSwitches", ["enable-automation"])
 	options.add_experimental_option('useAutomationExtension', False)
 	# options.add_argument('headless')
-	# options.add_extension('./extension_1_1_0_0.crx')
-	# options.add_argument('window-size=360,640')
-	# pc size
-	options.add_argument('window-size=1920,1080')
+	# options.add_extension('./extension_1_1_0_0.crx') # 이미지 표시 X
+	if sf_randomInt == 0:
+		# pc size
+		options.add_argument('window-size=1920,1080')
+	else:
+		options.add_argument('window-size=360,640')
 	# options.add_argument("disable-gpu")
 	# 혹은 options.add_argument("--disable-gpu")
 	options.add_argument("user-agent="+UA)
@@ -112,11 +118,15 @@ def inputKW_bottom(string,keys,browser):
 			win32api.keybd_event(keyboard.VK_CODE['spacebar'], 0,win32con.KEYEVENTF_KEYUP,0)
 			time.sleep(2)	
 
-		# 아래 상자에 글자 입력
-		browser.execute_script('document.getElementById("nx_query_btm").focus()')
-		
-		keyboardAltTab(keyboard)
-		mouseClickByJS(browser,'document.getElementById("nx_query_btm")')
+		if 'm.search' in browser.current_url:
+			browser.execute_script('document.getElementById("nx_query").focus()')
+			keyboardAltTab(keyboard)
+			mouseClickByJS(browser,'document.getElementById("nx_query")')
+		else:
+			# 아래 상자에 글자 입력
+			browser.execute_script('document.getElementById("nx_query_btm").focus()')
+			keyboardAltTab(keyboard)
+			mouseClickByJS(browser,'document.getElementById("nx_query_btm")')
 
 		time.sleep(1)
 		# delete all
@@ -130,7 +140,8 @@ def inputKW_bottom(string,keys,browser):
 		# 	keyboardClick2(['hangul'])
 
 		#대구 침산동 맛집
-		typingKW_bottom(string,keys,browser)
+		keyboardClick2(keys)
+		# typingKW_bottom(string,keys,browser)
 		time.sleep(2)
 		keyboardClick2(['enter'])
 		time.sleep(2)
@@ -243,14 +254,18 @@ def typingKW_bottom(string,key,browser):
 
 
 def clickBlog(browser):
-	time.sleep(5)
+	time.sleep(1)
+	for i in range(0,3):
+		keyboardClick2(['spacebar'])
+		time.sleep(1)
+
 	# 블로그 탭있는 경우
 	try:
 		if 'm.' in browser.current_url:
+			pass
 			# 바로 플레이스 리스트 버튼 클릭
-			mouseClickByJS(browser,'document.querySelector("._1zF_nelpFE a")')
+			# mouseClickByJS(browser,'document.querySelector(".total_tit")')
 		else:
-
 			mouseClickByJS(browser,'document.querySelector(".sh_blog_title")')
 			# mouseClickByJS(browser,'document.querySelector(".thumb_link")')
 			
@@ -262,8 +277,12 @@ def clickBlog(browser):
 	# 리뷰탭있는 경우
 	try:
 		if 'm.' in browser.current_url:
-			# 바로 플레이스 리스트 버튼 클릭
-			mouseClickByJS(browser,'document.querySelector("._1zF_nelpFE a")')
+			target = browser.find_element_by_css_selector(".total_tit")
+			# window 새로운 탭 열기
+			target.send_keys(Keys.CONTROL + "\n")
+			# keyboardClick2(['ctrl'])
+			# # 바로 플레이스 리스트 버튼 클릭
+			# mouseClickByJS(browser,'document.querySelector(".total_tit")')
 		else:
 			mouseClickByJS(browser,'document.querySelector(".thumb_link")')
 			
@@ -277,7 +296,10 @@ def clickBlog(browser):
 	browser.switch_to.window(browser.window_handles[-1])
 	time.sleep(3)
 	try:
-		browser.execute_script('document.querySelector("iframe").focus();')
+		if 'm.' in browser.current_url:
+			pass
+		else:
+			browser.execute_script('document.querySelector("iframe").focus();')
 	except Exception as e:
 		print("no iframe")
 		print(e)
@@ -286,9 +308,10 @@ def clickBlog(browser):
 	# 스크롤 작업
 	keyboard = KeyBoardControl()
 	for i in range(0,24):
-		win32api.keybd_event(keyboard.VK_CODE['spacebar'], 0,0,0)
-		time.sleep(0.3)
-		win32api.keybd_event(keyboard.VK_CODE['spacebar'], 0,win32con.KEYEVENTF_KEYUP,0)
+		keyboardClick2(['spacebar'])
+		# win32api.keybd_event(keyboard.VK_CODE['spacebar'], 0,0,0)
+		# time.sleep(0.3)
+		# win32api.keybd_event(keyboard.VK_CODE['spacebar'], 0,win32con.KEYEVENTF_KEYUP,0)
 		time.sleep(2)
 
 	time.sleep(10)
@@ -306,7 +329,8 @@ def closeTab(browser):
 	time.sleep(1)
 	randomInt = random.randrange(20,60)
 	try:
-		mouseClickByJS(browser,'document.querySelectorAll("a")['+str(randomInt)+']')
+		browser.find_element_by_css_selector(".total_wrap a")
+		# mouseClickByJS(browser,'document.querySelectorAll("a")['+str(randomInt)+']')
 	except Exception as e:
 		pass
 	time.sleep(2)
@@ -315,7 +339,8 @@ def closeTab(browser):
 	time.sleep(1)
 	randomInt = random.randrange(20,60)
 	try:
-		mouseClickByJS(browser,'document.querySelectorAll("a")['+str(randomInt)+']')
+		browser.find_element_by_css_selector(".total_wrap a")
+		# mouseClickByJS(browser,'document.querySelectorAll("a")['+str(randomInt)+']')
 	except Exception as e:
 		pass	
 	time.sleep(2)
@@ -356,6 +381,8 @@ def keyboardClick2(key):
 				win32api.keybd_event(keyboard.VK_CODE[key[i]], 0,win32con.KEYEVENTF_KEYUP,0)
 
 		elif key[i] == 'alt':
+			win32api.keybd_event(keyboard.VK_CODE[key[i]], 0,0,0)
+		elif key[i] == 'ctrl':
 			win32api.keybd_event(keyboard.VK_CODE[key[i]], 0,0,0)
 				
 		else:
